@@ -1,0 +1,9 @@
+{
+	"name": "adf-orders-dev-apcentral",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "0d022e7c-63b5-494d-8379-98ba67b8d5f9",
+		"tenantId": "7e1ce06e-ca5b-418f-851f-fe949eb7b1f1"
+	}
+}

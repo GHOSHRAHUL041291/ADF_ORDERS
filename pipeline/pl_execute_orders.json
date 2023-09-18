@@ -1,0 +1,83 @@
+{
+	"name": "pl_execute_orders",
+	"properties": {
+		"activities": [
+			{
+				"name": "pl_orders_landing_to_raw",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_order_items_landing_to_raw",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_orders_raw_to_cleansed",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_orders_landing_to_raw",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_orders_raw_to_cleansed",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_orders_cleansed_to_structured",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_orders_raw_to_cleansed",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_orders_cleansed_to_structured",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_orders_structured_to_analytics",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_orders_cleansed_to_structured",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_orders_structured_to_analytics",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-08-24T11:01:48Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,178 @@
+{
+	"name": "df_orders_structured_to_analytics",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_structured_products",
+						"type": "DatasetReference"
+					},
+					"name": "StructuredProducts"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_structured_stores",
+						"type": "DatasetReference"
+					},
+					"name": "StructuredStores"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_structured_orders",
+						"type": "DatasetReference"
+					},
+					"name": "StructuredOrders"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_analytics_products_status_monthly",
+						"type": "DatasetReference"
+					},
+					"name": "AnalyticsProducts"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_analytics_stores_status_monthly",
+						"type": "DatasetReference"
+					},
+					"name": "AnalyticsStores"
+				}
+			],
+			"transformations": [
+				{
+					"name": "ProductsWithOrders"
+				},
+				{
+					"name": "RequiredFieldsOnly"
+				},
+				{
+					"name": "ProductMonthWiseSales"
+				},
+				{
+					"name": "MonthYear"
+				},
+				{
+					"name": "StoresWithOrders"
+				},
+				{
+					"name": "RequiredFields"
+				},
+				{
+					"name": "ExcludeCancelledOrders"
+				},
+				{
+					"name": "StoresMonthWiseSales"
+				},
+				{
+					"name": "MonthYearAdd"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          PRODUCT_ID as integer,",
+				"          PRODUCT_NAME as string,",
+				"          UNIT_PRICE as double,",
+				"          UPDATED_TIMESTAMP as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> StructuredProducts",
+				"source(output(",
+				"          STORE_ID as integer,",
+				"          STORE_NAME as string,",
+				"          LATITUDE as double,",
+				"          LONGITUDE as double,",
+				"          UPDATED_TIMESTAMP as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> StructuredStores",
+				"source(output(",
+				"          ORDER_ID as integer,",
+				"          ORDER_DATE as date,",
+				"          CUSTOMER_ID as integer,",
+				"          ORDER_STATUS as string,",
+				"          STORE_ID as integer,",
+				"          PRODUCT_ID as integer,",
+				"          UNIT_PRICE as double,",
+				"          QUANTITY as integer,",
+				"          SUBTOTAL as double,",
+				"          UPDATED_TIMESTAMP as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> StructuredOrders",
+				"StructuredProducts, StructuredOrders join(StructuredProducts@PRODUCT_ID == StructuredOrders@PRODUCT_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> ProductsWithOrders",
+				"ProductsWithOrders select(mapColumn(",
+				"          PRODUCT_ID = StructuredProducts@PRODUCT_ID,",
+				"          PRODUCT_NAME,",
+				"          UNIT_PRICE = StructuredProducts@UNIT_PRICE,",
+				"          ORDER_DATE,",
+				"          ORDER_STATUS,",
+				"          QUANTITY,",
+				"          SUBTOTAL",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RequiredFieldsOnly",
+				"MonthYear aggregate(groupBy(PRODUCT_NAME,",
+				"          MONTH_YEAR,",
+				"          ORDER_STATUS),",
+				"     TOTAL_AMOUNT = sum(SUBTOTAL)) ~> ProductMonthWiseSales",
+				"RequiredFieldsOnly derive(MONTH_YEAR = toString(ORDER_DATE,'MM-yyyy')) ~> MonthYear",
+				"StructuredStores, StructuredOrders join(StructuredStores@STORE_ID == StructuredOrders@STORE_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> StoresWithOrders",
+				"StoresWithOrders select(mapColumn(",
+				"          STORE_NAME,",
+				"          STORE_ID = StructuredStores@STORE_ID,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          ORDER_DATE,",
+				"          SUBTOTAL,",
+				"          ORDER_STATUS",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RequiredFields",
+				"RequiredFields filter(ORDER_STATUS!='CANCELLED') ~> ExcludeCancelledOrders",
+				"MonthYearAdd aggregate(groupBy(STORE_NAME,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          ORDER_STATUS,",
+				"          MONTH_YEAR),",
+				"     TOTAL_AMOUNT = sum(SUBTOTAL)) ~> StoresMonthWiseSales",
+				"ExcludeCancelledOrders derive(MONTH_YEAR = toString(ORDER_DATE,'MM-yyyy')) ~> MonthYearAdd",
+				"ProductMonthWiseSales sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['ProductsOrdersMonthly.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> AnalyticsProducts",
+				"StoresMonthWiseSales sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['StoresordersMonthly.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> AnalyticsStores"
+			]
+		}
+	}
+}

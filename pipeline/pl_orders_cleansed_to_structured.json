@@ -1,0 +1,167 @@
+{
+	"name": "pl_orders_cleansed_to_structured",
+	"properties": {
+		"activities": [
+			{
+				"name": "CleansedToStructured",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SetFolderPathForOrderItems",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetFolderPathForOrders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetFolderPathForProducts",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetFolderPathForStores",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.00:11:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_orders_cleansed_to_structured",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"CleansedOrders": {
+								"pOrdersFolderPathWithDate": {
+									"value": "@variables('vOrdersCleansedPath')",
+									"type": "Expression"
+								}
+							},
+							"CleansedOrderItems": {
+								"pOrderItemsFolderPathWithDate": {
+									"value": "@variables('vOrderItemsCleansedPath')",
+									"type": "Expression"
+								}
+							},
+							"CleansedStores": {
+								"pStoresFolderPathWithDate": {
+									"value": "@variables('vStoresCleansedPath')",
+									"type": "Expression"
+								}
+							},
+							"CleansedProducts": {
+								"pProductsFolderPathWithDate": {
+									"value": "@variables('vProductsCleansedPath')",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SetFolderPathForOrderItems",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vOrderItemsCleansedPath",
+					"value": {
+						"value": "@concat('order_items/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetFolderPathForOrders",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vOrdersCleansedPath",
+					"value": {
+						"value": "@concat('orders/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetFolderPathForProducts",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vProductsCleansedPath",
+					"value": {
+						"value": "@concat('products/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetFolderPathForStores",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vStoresCleansedPath",
+					"value": {
+						"value": "@concat('stores/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"vOrderItemsCleansedPath": {
+				"type": "String"
+			},
+			"vOrdersCleansedPath": {
+				"type": "String"
+			},
+			"vProductsCleansedPath": {
+				"type": "String"
+			},
+			"vStoresCleansedPath": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-24T11:01:47Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,34 @@
+{
+	"name": "pl_execute_data_flow_into_sql",
+	"properties": {
+		"activities": [
+			{
+				"name": "InsertIntoOrdersSQLUsingdataFlowPipeline",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_sql_sink",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-08-24T14:00:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

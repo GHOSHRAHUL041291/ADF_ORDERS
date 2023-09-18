@@ -1,0 +1,255 @@
+{
+	"name": "pl_orders_raw_to_cleansed",
+	"properties": {
+		"activities": [
+			{
+				"name": "OrdersRawToCleansed",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SetFolderPathForCustomers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetFolderPathForOrderItems",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetFolderPathForOrders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetFolderPathForProducts",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetFolderPathForStores",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetFolderPathForRawContainerSource",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.00:11:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_orders_raw_to_cleansed",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"CustomersFromRawDataSet": {
+								"pDayWiseFolderPath": {
+									"value": "@variables('vFolderPathForRawContainer')",
+									"type": "Expression"
+								}
+							},
+							"OrderItemsFromRawToCleansed": {
+								"pDayWiseFolderPath": {
+									"value": "@variables('vFolderPathForRawContainer')",
+									"type": "Expression"
+								}
+							},
+							"StoresFromRaw": {
+								"pDayWiseFolderPath": {
+									"value": "@variables('vFolderPathForRawContainer')",
+									"type": "Expression"
+								}
+							},
+							"ProductsFromRaw": {
+								"pDayWiseFolderPath": {
+									"value": "@variables('vFolderPathForRawContainer')",
+									"type": "Expression"
+								}
+							},
+							"OrdersFromRaw": {
+								"pDayWiseFolderPath": {
+									"value": "@variables('vFolderPathForRawContainer')",
+									"type": "Expression"
+								}
+							},
+							"CustomersSink": {
+								"pCustomersFolderPathWithDate": {
+									"value": "@variables('vCustomersFolderPathToCleansed')",
+									"type": "Expression"
+								}
+							},
+							"OrderItemsSink": {
+								"pOrderItemsFolderPathWithDate": {
+									"value": "@variables('vOrderItemsFolderPathToCleansed')",
+									"type": "Expression"
+								}
+							},
+							"StoresSink": {
+								"pStoresFolderPathWithDate": {
+									"value": "@variables('vStoresFolderPathToCleansed')",
+									"type": "Expression"
+								}
+							},
+							"ProductsSink": {
+								"pProductsFolderPathWithDate": {
+									"value": "@variables('vProductsFolderPathToCleansed')",
+									"type": "Expression"
+								}
+							},
+							"OrdersSink": {
+								"pOrdersFolderPathWithDate": {
+									"value": "@variables('vOrdersFolderPathToCleansed')",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SetFolderPathForCustomers",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vCustomersFolderPathToCleansed",
+					"value": {
+						"value": "@concat('customers/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetFolderPathForOrderItems",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vOrderItemsFolderPathToCleansed",
+					"value": {
+						"value": "@concat('order_items/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetFolderPathForOrders",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vOrdersFolderPathToCleansed",
+					"value": {
+						"value": "@concat('orders/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetFolderPathForProducts",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vProductsFolderPathToCleansed",
+					"value": {
+						"value": "@concat('products/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetFolderPathForStores",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vStoresFolderPathToCleansed",
+					"value": {
+						"value": "@concat('stores/',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetFolderPathForRawContainerSource",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vFolderPathForRawContainer",
+					"value": {
+						"value": "@formatDateTime(utcNow(),'yyyy-MM-dd')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"vCustomersFolderPathToCleansed": {
+				"type": "String"
+			},
+			"vOrderItemsFolderPathToCleansed": {
+				"type": "String"
+			},
+			"vOrdersFolderPathToCleansed": {
+				"type": "String"
+			},
+			"vProductsFolderPathToCleansed": {
+				"type": "String"
+			},
+			"vStoresFolderPathToCleansed": {
+				"type": "String"
+			},
+			"vFolderPathForRawContainer": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-24T11:01:48Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

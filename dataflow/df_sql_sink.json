@@ -1,0 +1,75 @@
+{
+	"name": "df_sql_sink",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_structured_orders",
+						"type": "DatasetReference"
+					},
+					"name": "SourceOrdersFromStructured"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_orders_structured_sql",
+						"type": "DatasetReference"
+					},
+					"name": "SQLOrders"
+				}
+			],
+			"transformations": [
+				{
+					"name": "UpsertSQLOrders"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ORDER_ID as integer,",
+				"          ORDER_DATE as date,",
+				"          CUSTOMER_ID as integer,",
+				"          ORDER_STATUS as string,",
+				"          STORE_ID as integer,",
+				"          PRODUCT_ID as integer,",
+				"          UNIT_PRICE as double,",
+				"          QUANTITY as integer,",
+				"          ORDER_ITEM_ID as integer,",
+				"          SUBTOTAL as double,",
+				"          UPDATED_TIMESTAMP as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> SourceOrdersFromStructured",
+				"SourceOrdersFromStructured alterRow(upsertIf(true())) ~> UpsertSQLOrders",
+				"UpsertSQLOrders sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ORDER_ITEM_ID as integer,",
+				"          ORDER_ID as integer,",
+				"          ORDER_DATE as date,",
+				"          CUSTOMER_ID as integer,",
+				"          ORDER_STATUS as string,",
+				"          STORE_ID as integer,",
+				"          PRODUCT_ID as integer,",
+				"          UNIT_PRICE as decimal(18,0),",
+				"          QUANTITY as integer,",
+				"          SUBTOTAL as decimal(18,0),",
+				"          UPDATED_TIMESTAMP as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ORDER_ITEM_ID'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> SQLOrders"
+			]
+		}
+	}
+}

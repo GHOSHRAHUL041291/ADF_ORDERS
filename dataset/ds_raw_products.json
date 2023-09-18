@@ -1,0 +1,32 @@
+{
+	"name": "ds_raw_products",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_raw_orders",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"pDayWiseFolderPath": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Raw"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "products.json",
+				"folderPath": {
+					"value": "@dataset().pDayWiseFolderPath",
+					"type": "Expression"
+				},
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

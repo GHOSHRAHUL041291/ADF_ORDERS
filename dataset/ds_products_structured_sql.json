@@ -1,0 +1,41 @@
+{
+	"name": "ds_products_structured_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_orders_sql",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Structured"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "PRODUCT_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PRODUCT_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "UNIT_PRICE",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 0
+			},
+			{
+				"name": "UPDATED_TIMESTAMP",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
+		"typeProperties": {
+			"schema": "ORDERS",
+			"table": "PRODUCTS"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

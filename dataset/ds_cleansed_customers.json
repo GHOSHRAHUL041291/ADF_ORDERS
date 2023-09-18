@@ -1,0 +1,32 @@
+{
+	"name": "ds_cleansed_customers",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_raw_orders",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"pCustomersFolderPathWithDate": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Cleansed"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().pCustomersFolderPathWithDate",
+					"type": "Expression"
+				},
+				"fileSystem": "cleansed"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
